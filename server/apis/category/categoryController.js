@@ -48,7 +48,29 @@ const getall = (req,res)=>{
         })
     })
 }
-const getsingle =(req,res)=>{
+// const getsingle =(req,res)=>{
+//     categoryModel.findOne({_id:req.body._id})
+//     .then((catdata)=>{
+//             res.send({
+//                 status:200,
+//                 success:true,
+//                 messsage:"Single category loaded!!",
+//                 data:catdata
+//             })
+//     })
+//     .catch((err)=>{
+//         console.log(err);
+        
+//         res.send({
+//             statuss:500,
+//             success:false,
+//             message:"Internel Server error!!"
+//         })
+//     })
+
+
+// }
+const single =(req,res)=>{
     categoryModel.findOne({_id:req.body._id})
     .then((catdata)=>{
             res.send({
@@ -71,4 +93,4 @@ const getsingle =(req,res)=>{
 
 }
 
-module.exports = {add,getall,}
+module.exports = {add,getall,single}
