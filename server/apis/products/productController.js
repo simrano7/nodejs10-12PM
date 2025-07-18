@@ -1,4 +1,5 @@
 const productModel = require("./productModel")
+const {uploadImg} = require("../../utilities/helper")
 const add = (req,res)=>{
     var errMsgs = []
     if(!req.body.name){
@@ -7,8 +8,8 @@ const add = (req,res)=>{
     if(!req.body.description){
         errMsgs.push("description is required!!")
     }
-    if(!req.file){
-        errMsgs.push("image is required!!")
+    if(!req.files.length<0){
+        errMsgs.push("images is required!!")
     }
     if(!req.body.categoryId){
         errMsgs.push("categoryId is required!!")
@@ -27,14 +28,34 @@ const add = (req,res)=>{
         //insert
         // console.log("data insertion code");
         productModel.findOne({name:req.body.name})
-        .then((productdata)=>{
+        .then(async(productdata)=>{
             console.log("product data is",productdata);
             if(productdata == null){
                 //insertion
                 let productObj = new productModel()
                 productObj.name = req.body.name
                 productObj.description = req.body.description
-                productObj.image = "products/"+req.file.filename
+                // productObj.image = "products/"+req.file.filename
+                // if(req.file){
+                //         // cloud
+                //         try{
+                //                 let url =await uploadImg(req.file.buffer)
+                //                 productObj.image = url
+                //         }
+                //         catch(err){
+                //                 res.send({
+                //                     status:400,
+                //                     success:false,
+                //                     message:"cloudnairy error!!"
+                //                 })
+                //         }
+                // }
+                let imageArr=[]
+            for(let i=0;i<req.files?.length;i++){
+                let url=await uploadImg(req.files[i]?.buffer);
+                imageArr.push(url)            
+            }
+                 productObj.images=imageArr 
                 productObj.categoryId = req.body.categoryId
                 productObj.price = req.body.price
                 productObj.save()
@@ -101,46 +122,92 @@ const getall = async(req,res)=>{
 
 }
 
-const getpagination = (req,res)=>{
-        var errMsgs = []
-        if(!req.body.pageno)
-            errMsgs.push("pageno is required!!")
-        if(!req.body.limit)
-            errMsgs.push("limit is required!!")
-        if(errMsgs.length>0){
-            res.send({
-                status:422,
-                success:false,
-                message:errMsgs
-            })
+
+// const getpagination = (req,res)=>{
+//         var errMsgs = []
+//         if(!req.body.pageno)
+//             errMsgs.push("pageno is required!!")
+//         if(!req.body.limit)
+//             errMsgs.push("limit is required!!")
+//         if(errMsgs.length>0){
+//             res.send({
+//                 status:422,
+//                 success:false,
+//                 message:errMsgs
+//             })
+//         }
+//         else{
+//             var pageno = req.body.pageno 
+//             var limit = req.body.limit 
+//             var skip = 0
+//             if(pageno>1){
+//                 skip = (pageno-1)*limit
+//             }
+//             productModel.find()
+//              .populate("categoryId")
+//             .skip(skip)
+//             .limit(limit)
+//             .then((prodata)=>{
+//                   res.send({
+//                     status:200,
+//                     success:true,
+//                     messsage:"Data loaded!!",
+//                     data:prodata
+//                 })  
+//             })
+//             .catch((err)=>{
+//                  res.send({
+//                     status:500,
+//                     success:false,
+//                     messsage:"Something went wrong!!"
+//                 })
+//             })
+//         }
+// }
+
+const getpagination =(req,res)=>{
+     var errMsgs = []
+    if(!req.body.pageno){
+        errMsgs.push("pageno is required!!")
+    }
+    if(!req.body.limit){
+        errMsgs.push("limit is required!!")
+    }
+    if(errMsgs.length>0){
+        res.send({
+            status:422,
+            success:false,
+            message:errMsgs
+        })
+    }  
+    else{
+        // pagination
+        var pageno = req.body.pageno;
+        var limit = req.body.limit;
+        var skip = 0
+        if(pageno>1){
+            skip = (pageno -1 )*limit
         }
-        else{
-            var pageno = req.body.pageno 
-            var limit = req.body.limit 
-            var skip = 0
-            if(pageno>1){
-                skip = (pageno-1)*limit
-            }
-            productModel.find()
-             .populate("categoryId")
-            .skip(skip)
-            .limit(limit)
-            .then((prodata)=>{
-                  res.send({
+        productModel.find()
+        .skip(skip)
+        .limit(limit)
+        .then((productdata)=>{
+            
+               res.send({
                     status:200,
                     success:true,
-                    messsage:"Data loaded!!",
-                    data:prodata
-                })  
-            })
-            .catch((err)=>{
-                 res.send({
+                    messsage:"Data Loaded!!",
+                    data:productdata
+                })    
+        })
+         .catch((err)=>{
+                res.send({
                     status:500,
                     success:false,
                     messsage:"Something went wrong!!"
                 })
             })
-        }
+    } 
 }
 
 
@@ -519,7 +586,7 @@ const update = (req,res)=>{
             else{
                 //find data
                 productModel.findOne({_id:req.body._id})
-                .then((productdata)=>{
+                .then(async(productdata)=>{
                     // console.log("product data",productdata);
                     if(productdata == null){
                          res.send({
@@ -536,9 +603,23 @@ const update = (req,res)=>{
                         if(req.body.description){
                             productdata.description=req.body.description
                         }
-                        if(req.file){
-                            productdata.image="products/"+req.file.filename
+                        // if(req.file){
+                        //     // productdata.image="products/"+req.file.filename
+                        // }
+                          if(req.file){
+                        // cloud
+                        try{
+                                let url =await uploadImg(req.file.buffer)
+                                productdata.image = url
                         }
+                        catch(err){
+                                res.send({
+                                    status:400,
+                                    success:false,
+                                    message:"cloudnairy error!!"
+                                })
+                        }
+                }
                         if(req.body.price){
                             productdata.price=req.body.price
                         }

@@ -13,7 +13,7 @@ module.exports =(req,res,next)=>{
         }
         else{
             jwt.verify(token,secret,(err,data)=>{
-                console.log("data is",data);
+                // console.log("data is",data);
                     if(!!err){
                             res.send({
                                 status:403,

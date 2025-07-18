@@ -5,8 +5,7 @@ const add = (req,res)=>{
 
     categoryObj.name = req.body.name
     categoryObj.description = req.body.description
-    categoryObj.image = req.body.image
-
+    categoryObj.image = "category/"+req.file.filename
     categoryObj.save().then((categorydata)=>{
             res.send({
                  status:200,
@@ -48,29 +47,7 @@ const getall = (req,res)=>{
         })
     })
 }
-// const getsingle =(req,res)=>{
-//     categoryModel.findOne({_id:req.body._id})
-//     .then((catdata)=>{
-//             res.send({
-//                 status:200,
-//                 success:true,
-//                 messsage:"Single category loaded!!",
-//                 data:catdata
-//             })
-//     })
-//     .catch((err)=>{
-//         console.log(err);
-        
-//         res.send({
-//             statuss:500,
-//             success:false,
-//             message:"Internel Server error!!"
-//         })
-//     })
-
-
-// }
-const single =(req,res)=>{
+const getsingle =(req,res)=>{
     categoryModel.findOne({_id:req.body._id})
     .then((catdata)=>{
             res.send({
@@ -93,4 +70,4 @@ const single =(req,res)=>{
 
 }
 
-module.exports = {add,getall,single}
+module.exports = {add,getall,}

@@ -2,6 +2,18 @@
 
 const express = require("express")
 const app = express()
+const studentdata = require("./data")
+const filterstu =  studentdata.filter((el)=>{
+            // console.log(el.marks);
+            if(el.marks>=80){
+                // console.log(el);
+                return el;
+                
+            }
+            
+})
+// console.log("student data",studentdata);
+
 const productdata = require("./productdata")
 const db = require("./server/config/db")
 app.use(express.urlencoded({extended:true}))
@@ -79,7 +91,14 @@ app.post("/shirtdata",(req,res)=>{
        
     })
 })
-
+app.get("/studentdata",(req,res)=>{
+      res.send({
+            status:200,
+            success:true,
+            message:"student data loaded!!",
+            data:filterstu
+        })
+})
 app.post("/paramsdata/:name",(req,res)=>{
     console.log(req.params.name);
     
